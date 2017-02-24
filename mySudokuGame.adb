@@ -16,7 +16,7 @@ procedure mySudokuGame is
     type subBoard is array(1..3,1..3) of Integer;
     type blockList is array(ValRange) of subBoard;
     type numArray is array(ElemRange) of ElemRange;
-    type boolElems is array(ValRange) of boolean;
+    type boolElems is array(ValRange) of Integer;
     type array_of_array_type is array(ValRange) of boolElems;
     --type colNums is array(ElemRange) of ValRange;
     --subtype myRandomInteger is Integer range 1 .. myInteger'Last;
@@ -29,13 +29,15 @@ procedure mySudokuGame is
     sudokuGame    : SudokuBoard         := (others=> (others=> 0));
     rowColumnMat  : SudokuBoard         := (others=> (others=> 0));
     ElemValsFlags : Elems_and_Vals      := (others=> (others=> False));
-    elemBools     : boolElems           := (others => False);
+    elemBools     : boolElems           := (others => 0);
     rowVals       : numArray            := (others => 1);
     colVals       : numArray            := (others => 1);
-    array_of_rows : array_of_array_type := (others=> (others=> False));
-    array_of_cols : array_of_array_type := (others=> (others=> False));
+    array_of_rows : array_of_array_type := (others=> (others=> 0));
+    array_of_cols : array_of_array_type := (others=> (others=> 0));
     rowColIdx     : Integer             := 1;
-    valCount      : Integer             := 1;
+    valCount      : Integer;
+    loopCount     : Integer             := 0;
+    avg_count     : Float               := 0.0;
     valNum        : ElemRange;
     rowNum        : ValRange;
     colNum        : ValRange;
@@ -44,6 +46,10 @@ procedure mySudokuGame is
     
 
 begin -- Display_Board 
+--for loopNum in ElemRange
+--loop
+    valCount := 1;
+
   
   --Ada.Text_IO.New_Line;
   --Ada.Text_IO.Put(Item => "-----------------------------------------------");
@@ -74,18 +80,18 @@ begin -- Display_Board
         
         -- must loop until value less than 10 is found 
         -- due to not being able to use random_discrete package 
-        -- more than once for different variable names of the same type but different variable ranges.       
+        -- more than once for different variable names of the same type but different ranges.       
         find_cell_value:
         loop 
           valNum := Random(randNum); 
             if valNum < 10 then
-              find_elem_num:
-              loop        
+              --find_elem_num:
+              --loop        
                   -- Determine cell number
                   elemNum := Random(randNum);
-                    if ElemValsFlags(valNum,elemNum) = false then 
-                     exit 
-              end loop find_elem_num;
+              --      if ElemValsFlags(valNum,elemNum) = false then 
+              --       exit 
+              --end loop find_elem_num;
             end if;
             
           --Ada.Text_IO.New_Line;
@@ -158,15 +164,17 @@ begin -- Display_Board
       --myInt.Put(Item => valNum, Width => 3);
       --myInt.Put(Item => elemNum, Width => 3);
   end loop;
-      Ada.Text_IO.New_Line;
-      myInt.Put(Item => rowNum, Width => 3);
-      myInt.Put(Item => colNum, Width => 3);
-      myInt.Put(Item => elemNum, Width => 3);
+      --Ada.Text_IO.New_Line;
+      --myInt.Put(Item => rowNum, Width => 3);
+      --myInt.Put(Item => colNum, Width => 3);
+      --myInt.Put(Item => elemNum, Width => 3);
       Ada.Text_IO.New_Line;
       myInt.Put(Item => valCount, Width => 3);
       Ada.Text_IO.New_Line;
-      myInt.Put(Item => valNum, Width => 3);
-  
+--      loopCount := loopCount + valCount;
+--end loop;
+--  avg_count :=Float(loopCount)/Float(ElemRange'Last);
+--      myFloat.Put(Item => avg_count,Fore => 7, Aft => 2, Exp => 0);
 end mySudokuGame;
 
 
