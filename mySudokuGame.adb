@@ -16,9 +16,9 @@ procedure mySudokuGame is
     type subBoard is array(1..3,1..3) of Integer;
     type blockList is array(ValRange) of subBoard;
     type numArray is array(ElemRange) of ElemRange;
-    type array_of_Array_type is array(ElemRange) of numArray;
+    type boolElems is array(ValRange) of boolean;
+    type array_of_array_type is array(ValRange) of boolElems;
     --type colNums is array(ElemRange) of ValRange;
-    type boolElems is array(ElemRange) of boolean;
     --subtype myRandomInteger is Integer range 1 .. myInteger'Last;
     
     package randValNum is new Ada.Numerics.Discrete_Random(ElemRange);
@@ -26,37 +26,38 @@ procedure mySudokuGame is
     --package randElemNum is new Ada.Numerics.Discrete_Random(ElemRange);
     --use randElemNum;
     
-    sudokuGame      : SudokuBoard         := (others=> (others=> 0));
-    ElemValsFlags   : Elems_and_Vals      := (others=> (others=> False));
-    elemBools       : boolElems           := (others => False);
-    rowVals         : numArray            := (others => 1);
-    colVals         : numArray            := (others => 1);
-    array_of_arrays : array_of_Array_type := (others=> (others=> 1));
-    valNum          : ElemRange;
-    elemNum         : ElemRange;
-    randNum         : Generator;
-    rowIdx          : Integer             := 0;
+    sudokuGame    : SudokuBoard         := (others=> (others=> 0));
+    rowColumnMat  : SudokuBoard         := (others=> (others=> 0));
+    ElemValsFlags : Elems_and_Vals      := (others=> (others=> False));
+    elemBools     : boolElems           := (others => False);
+    rowVals       : numArray            := (others => 1);
+    colVals       : numArray            := (others => 1);
+    array_of_rows : array_of_array_type := (others=> (others=> False));
+    array_of_cols : array_of_array_type := (others=> (others=> False));
+    rowColIdx     : Integer             := 1;
+    valCount      : Integer             := 1;
+    valNum        : ElemRange;
+    rowNum        : ValRange;
+    colNum        : ValRange;
+    elemNum       : ElemRange;
+    randNum       : Generator;
     
 
 begin -- Display_Board 
   
-  Ada.Text_IO.New_Line;
-  Ada.Text_IO.Put(Item => "-----------------------------------------------");
-  Ada.Text_IO.New_Line;
+  --Ada.Text_IO.New_Line;
+  --Ada.Text_IO.Put(Item => "-----------------------------------------------");
+  --Ada.Text_IO.New_Line;
   
-  for init in ValRange
+  for i in ValRange
   loop
-    rowVals(init) := init;
-    --myInt.Put(Item => rowVals(init), Width => 3);
-    rowIdx := rowIdx + 1;
-    for rowIdx in ValRange'First .. ValRange'Last + 1
+    for j in ValRange
     loop
-    rowVals(init) := rowIdx;
-    array_of_arrays(init)(rowIdx) := rowVals(init);
-    ----array_of_arrays(init)(rowelem) := rowVals(rowelem);
-    myInt.Put(Item => rowVals(init), Width => 3);
-    ----myInt.Put(Item => array_of_arrays(init)(rowelem), Width => 3);
+        rowColumnMat(i,j) := rowColIdx;
+        --myInt.Put(Item => rowColumnMat(i,j), Width => 3); 
+        rowColIdx := rowColIdx + 1;   
     end loop;
+    --Ada.Text_IO.New_Line; 
   end loop;
   
   for Row in ValRange loop
@@ -65,33 +66,65 @@ begin -- Display_Board
       --valNum := Random(valRandNum);
       --usedNumArray(Row) := valNum;
       --myInt.Put(Item => usedNumArray(Row), Width => 3);
+      
     for Column in ValRange loop
-      --for Column_i in ValRange loop
-        --Reset(valRandNum);
-        --valNum := Random(valRandNum);
-        
-        row_column_search:
-        loop        
-            -- Initialize random number generator
-            Reset(randNum);            
-            -- Determine cell number
-            elemNum := Random(randNum);
-            
-            exit when elemNum = 56;            
-        end loop row_column_search;          
+    
+      -- Initialize random number generator
+      Reset(randNum);      
         
         -- must loop until value less than 10 is found 
         -- due to not being able to use random_discrete package 
         -- more than once for different variable names of the same type but different variable ranges.       
         find_cell_value:
         loop 
-            valNum := Random(randNum);
-                exit when valNum < 10;
+          valNum := Random(randNum); 
+            if valNum < 10 then
+              find_elem_num:
+              loop        
+                  -- Determine cell number
+                  elemNum := Random(randNum);
+                    if ElemValsFlags(valNum,elemNum) = false then 
+                     exit 
+              end loop find_elem_num;
+            end if;
+            
+          --Ada.Text_IO.New_Line;
+          --myInt.Put(Item => valCount, Width => 3);
+          valCount := valCount + 1;
+          exit when valNum < 10;
         end loop find_cell_value;
+  
+        find_row_column:
+        for init in ValRange
+        loop
+          --rowVals(init) := init;
+          --myInt.Put(Item => rowVals(init), Width => 3);
+          for rowElem in ValRange
+          loop
+            rowNum := init;
+            colNum := rowElem;
+            exit find_row_column when rowColumnMat(init,rowElem) = elemNum;
+          --rowVals(init) := rowElem;
+          --array_of_arrays(init)(rowElem) := rowVals(init);
+          --array_of_arrays(init)(rowelem) := rowVals(rowelem);
+          --myInt.Put(Item => rowVals(init), Width => 3);
+          --myInt.Put(Item => array_of_arrays(init)(rowelem), Width => 3);
+          end loop;
+        end loop find_row_column;
+        
+        --set_row_bools:
+        --for rows in ValRange
+        --  loop
+        --    for value in ValRange
+        --      loop
+        --        array_of_rows() 
+        --      end loop;
+        --  
+        --  end loop set_row_bools;
         
         --valNumArray(Column_i) := valNum;
       --end loop;
-      Ada.Text_IO.Put(Item => " |");
+      --Ada.Text_IO.Put(Item => " |");
       --if valNum not in sudokuGame( 
       --sudokuGame(Row,Column) := valNum;
       --for Column_j in ValRange loop
@@ -118,14 +151,21 @@ begin -- Display_Board
       --myInt.Put(Item => usedNumArray(Column), Width => 3);
       --valNum := valNum + 1;
     end loop;
-    Ada.Text_IO.Put(Item => " |");
-    Ada.Text_IO.New_Line;
-    Ada.Text_IO.Put(Item => "-----------------------------------------------");
-    Ada.Text_IO.New_Line;
+    --Ada.Text_IO.Put(Item => " |");
+    --Ada.Text_IO.New_Line;
+    --Ada.Text_IO.Put(Item => "-----------------------------------------------");
+    --Ada.Text_IO.New_Line;
       --myInt.Put(Item => valNum, Width => 3);
       --myInt.Put(Item => elemNum, Width => 3);
   end loop;
-      --myInt.Put(Item => elemNum, Width => 3);
+      Ada.Text_IO.New_Line;
+      myInt.Put(Item => rowNum, Width => 3);
+      myInt.Put(Item => colNum, Width => 3);
+      myInt.Put(Item => elemNum, Width => 3);
+      Ada.Text_IO.New_Line;
+      myInt.Put(Item => valCount, Width => 3);
+      Ada.Text_IO.New_Line;
+      myInt.Put(Item => valNum, Width => 3);
   
 end mySudokuGame;
 
